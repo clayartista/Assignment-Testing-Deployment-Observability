@@ -1,11 +1,9 @@
 "use client";
-import { useContext } from "react";
-import { FavoriteContext } from "@/context/FavoriteContext";
+import { useFavorite } from "@/context/FavoriteContext";
 import UserCard from "@/components/UserCard";
 
 export default function FavoritesPage() {
-  // Ambil data langsung dari context
-  const { favorites } = useContext(FavoriteContext);
+  const { favorites } = useFavorite();
 
   return (
     <section className="relative min-h-screen">

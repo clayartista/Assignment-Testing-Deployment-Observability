@@ -7,6 +7,7 @@ import { useUser } from "@/context/UserContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
+import { submitContactForm } from "./actions";
 
 const contactInfo = [
   { icon: Mail, label: "Email", value: "hello@mywebsite.com" },
@@ -26,16 +27,21 @@ export default function Contact() {
     setSubmitted,
   } = useUser();
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault();
 
-    console.log({
-      name,
-      email,
-      message,
-    });
+    const formData = new FormData();
+    formData.append("name", name);
+    formData.append("email", email);
+    formData.append("message", message);
 
-    setSubmitted(true);
+    const result = await submitContactForm(formData);
+
+    if (result.success) {
+      setSubmitted(true);
+    } else {
+      alert(result.error);
+    }
   }
 
   return (
@@ -69,13 +75,8 @@ export default function Contact() {
                   </div>
 
                   <div>
-                    <p className="text-xs text-muted-foreground">
-                      {label}
-                    </p>
-
-                    <p className="text-sm font-medium">
-                      {value}
-                    </p>
+                    <p className="text-xs text-muted-foreground">{label}</p>
+                    <p className="text-sm font-medium">{value}</p>
                   </div>
                 </CardContent>
               </Card>
@@ -86,25 +87,17 @@ export default function Contact() {
             <CardContent>
               {submitted ? (
                 <div className="flex h-full min-h-64 flex-col items-center justify-center text-center">
-                  <p className="text-lg font-semibold">
-                    Message sent
-                  </p>
+                  <p className="text-lg font-semibold">Message sent</p>
 
                   <p className="mt-2 text-sm text-muted-foreground">
                     Thanks for reaching out — we&apos;ll reply soon.
                   </p>
                 </div>
               ) : (
-                <form
-                  onSubmit={handleSubmit}
-                  className="space-y-4"
-                >
+                <form onSubmit={handleSubmit} className="space-y-4">
                   <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                      <label
-                        htmlFor="name"
-                        className="text-sm font-medium"
-                      >
+                      <label htmlFor="name" className="text-sm font-medium">
                         Name
                       </label>
 
@@ -113,17 +106,12 @@ export default function Contact() {
                         placeholder="Your name"
                         required
                         value={name}
-                        onChange={(event) =>
-                          setName(event.target.value)
-                        }
+                        onChange={(event) => setName(event.target.value)}
                       />
                     </div>
 
                     <div className="space-y-1.5">
-                      <label
-                        htmlFor="email"
-                        className="text-sm font-medium"
-                      >
+                      <label htmlFor="email" className="text-sm font-medium">
                         Email
                       </label>
 
@@ -133,18 +121,13 @@ export default function Contact() {
                         placeholder="you@example.com"
                         required
                         value={email}
-                        onChange={(event) =>
-                          setEmail(event.target.value)
-                        }
+                        onChange={(event) => setEmail(event.target.value)}
                       />
                     </div>
                   </div>
 
                   <div className="space-y-1.5">
-                    <label
-                      htmlFor="message"
-                      className="text-sm font-medium"
-                    >
+                    <label htmlFor="message" className="text-sm font-medium">
                       Message
                     </label>
 
@@ -154,27 +137,16 @@ export default function Contact() {
                       required
                       placeholder="Tell us about your project..."
                       value={message}
-                      onChange={(event) =>
-                        setMessage(event.target.value)
-                      }
+                      onChange={(event) => setMessage(event.target.value)}
                       className="w-full rounded-lg border border-input bg-transparent px-3 py-2 text-sm outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
                     />
                   </div>
 
-                  <Button
-                    type="submit"
-                    className="w-full rounded-full"
-                  >
+                  <Button type="submit" className="w-full rounded-full">
                     Send message
                   </Button>
                 </form>
               )}
-
-              <div className="w-full rounded-lg border border-input bg-transparent px-3 py-2 text-sm outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 mt-2">
-                <p>Nama : {name}</p>
-                <p>Email : {email}</p>
-                <p>Messages : {message}</p>
-              </div>
             </CardContent>
           </Card>
         </div>

@@ -30,8 +30,9 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
+    // Tambahkan suppressHydrationWarning di sini
     <html
-      lang="en"
+      lang="en suppressHydrationWarning"
       className={`dark ${fontSans.variable}`}
       data-scroll-behavior="smooth"
     >
@@ -43,6 +44,7 @@ export default function RootLayout({ children }) {
             <main className="flex-1">
               {children}
             </main>
+          
 
             <Footer />
           </FavoriteProvider>

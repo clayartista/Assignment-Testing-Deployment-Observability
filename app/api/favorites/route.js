@@ -1,3 +1,9 @@
+import { addFavorite, getAllFavorites } from "@/lib/services/favoriteService";
+
+export async function GET() {
+  return Response.json(getAllFavorites());
+}
+
 export async function POST(request) {
   let body;
 
@@ -16,5 +22,5 @@ export async function POST(request) {
     return Response.json({ error: result.error }, { status: result.status });
   }
 
-  return Response.json(result.data, { status: result.status });
-}console.log("Hello, World!");
+  return Response.json({ data: result.data }, { status: result.status });
+}

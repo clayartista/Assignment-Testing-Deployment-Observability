@@ -7,11 +7,10 @@ const FavoriteContext = createContext(undefined);
 export function FavoriteProvider({ children }) {
   const [favorites, setFavorites] = useState([]);
 
-  //GET data dari API
   useEffect(() => {
     fetch("/api/favorites")
       .then((res) => res.json())
-      .then(setFavorites)
+      .then((data) => setFavorites(Array.isArray(data) ? data : data?.data ?? []))
       .catch(() => setFavorites([]));
   }, []);
 
@@ -24,7 +23,8 @@ export function FavoriteProvider({ children }) {
 
     if (res.ok) {
       const saved = await res.json();
-      setFavorites((prev) => [...prev, saved.data ?? saved]);
+      const nextFavorite = saved?.data ?? saved;
+      setFavorites((prev) => [...prev, nextFavorite]);
     }
   };
 
@@ -37,7 +37,7 @@ export function FavoriteProvider({ children }) {
 
     if (res.ok) {
       const data = await res.json();
-      const updatedFavorite = data.data ?? { note };
+      const updatedFavorite = data?.data ?? { note };
 
       setFavorites((prev) =>
         prev.map((fav) =>
@@ -52,13 +52,14 @@ export function FavoriteProvider({ children }) {
 
     if (res.ok) {
       setFavorites((prev) =>
-        prev.filter((fav) => String(fav.id) !== String(userId))
+        prev.filter((f) => String(f.user_id) !== String(userId))
       );
     }
   };
 
-  const isFavorite = (userId) =>
-    favorites.some((f) => String(f.id) === String(userId));
+  const isFavorite = (userId) => {
+    return favorites.some((f) => String(f.user_id) === String(userId));
+  };
 
   const value = { favorites, addFavorite, updateFavorite, removeFavorite, isFavorite };
 

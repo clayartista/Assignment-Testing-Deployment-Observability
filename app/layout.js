@@ -2,6 +2,7 @@ import "./globals.css";
 
 import localFont from "next/font/local";
 
+import { UserProvider } from "@/context/UserContext";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { AuthProvider } from "@/context/AuthContext";
@@ -41,17 +42,17 @@ export default async function RootLayout({ children }) {
       className={`dark ${fontSans.variable}`}
     >
       <body className="flex min-h-screen flex-col bg-background text-foreground antialiased">
-        <AuthProvider user={user ? { id: user.id, email: user.email } : null}>
-          <FavoriteProvider>
-            <Navbar />
-
-            <main className="flex-1">
-              {children}
-            </main>
-
-            <Footer />
-          </FavoriteProvider>
-        </AuthProvider>
+        <UserProvider>
+          <AuthProvider user={user ? { id: user.id, email: user.email } : null}>
+            <FavoriteProvider>
+              <Navbar />
+              <main className="flex-1">
+                {children}
+              </main>
+              <Footer />
+            </FavoriteProvider>
+          </AuthProvider>
+        </UserProvider>
       </body>
     </html>
   );

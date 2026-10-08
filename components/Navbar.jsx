@@ -39,7 +39,7 @@ export default function Navbar() {
         </Link>
 
         <div className="hidden items-center gap-1 text-sm text-muted-foreground sm:flex">
-          {navlinks.map((link) => {
+          {navLinks.map((link) => {
             const isActive =
               link.href === "/"
                 ? pathname === "/"

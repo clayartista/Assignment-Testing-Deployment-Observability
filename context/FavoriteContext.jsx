@@ -6,12 +6,31 @@ const FavoriteContext = createContext(undefined);
 
 export function FavoriteProvider({ children }) {
   const [favorites, setFavorites] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    fetch("/api/favorites")
-      .then((res) => res.json())
-      .then((data) => setFavorites(Array.isArray(data) ? data : data?.data ?? []))
-      .catch(() => setFavorites([]));
+    async function loadFavorites() {
+      try {
+        const response = await fetch("/api/favorites");
+        if (!response.ok) {
+          throw new Error("Gagal mengambil daftar favorit.");
+        }
+
+        const data = await response.json();
+        if (!Array.isArray(data)) {
+          throw new Error("Format daftar favorit tidak valid.");
+        }
+
+        setFavorites(data);
+      } catch (error) {
+        setError(error instanceof Error ? error.message : "Gagal mengambil daftar favorit.");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadFavorites();
   }, []);
 
   const addFavorite = async (user) => {
@@ -61,7 +80,15 @@ export function FavoriteProvider({ children }) {
     return favorites.some((f) => String(f.user_id) === String(userId));
   };
 
-  const value = { favorites, addFavorite, updateFavorite, removeFavorite, isFavorite };
+  const value = {
+    favorites,
+    loading,
+    error,
+    addFavorite,
+    updateFavorite,
+    removeFavorite,
+    isFavorite,
+  };
 
   return (
     <FavoriteContext.Provider value={value}>{children}</FavoriteContext.Provider>

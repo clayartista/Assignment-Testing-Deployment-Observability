@@ -1,9 +1,66 @@
 "use client";
+import { useEffect, useState } from "react";
 import { useFavorite } from "@/context/FavoriteContext";
 import UserCard from "@/components/UserCard";
 
 export default function FavoritesPage() {
-  const { favorites } = useFavorite();
+  const { favorites, loading: favoritesLoading, error: favoritesError } = useFavorite();
+  const [favoriteUsers, setFavoriteUsers] = useState([]);
+  const [usersLoading, setUsersLoading] = useState(false);
+  const [usersError, setUsersError] = useState("");
+
+  useEffect(() => {
+    if (favoritesLoading || favoritesError || favorites.length === 0) {
+      return;
+    }
+
+    let cancelled = false;
+
+    async function loadFavoriteUsers() {
+      setUsersLoading(true);
+      setUsersError("");
+
+      try {
+        const users = await Promise.all(
+          favorites.map(async (favorite) => {
+            const userId = favorite.user_id ?? favorite.app_users?.id;
+            if (!userId) {
+              throw new Error("Data favorit tidak memiliki ID pengguna.");
+            }
+
+            const response = await fetch(
+              `https://jsonplaceholder.typicode.com/users/${userId}`
+            );
+            if (!response.ok) {
+              throw new Error(`Gagal mengambil data pengguna ${userId}.`);
+            }
+
+            return response.json();
+          })
+        );
+
+        if (!cancelled) {
+          setFavoriteUsers(users);
+        }
+      } catch (error) {
+        if (!cancelled) {
+          setUsersError(
+            error instanceof Error ? error.message : "Gagal mengambil data pengguna favorit."
+          );
+        }
+      } finally {
+        if (!cancelled) {
+          setUsersLoading(false);
+        }
+      }
+    }
+
+    loadFavoriteUsers();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [favorites, favoritesError, favoritesLoading]);
 
   return (
     <section className="relative min-h-screen">
@@ -19,20 +76,20 @@ export default function FavoritesPage() {
         </p>
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {favorites.length > 0 ? (
-            favorites.map((favorite) => (
-              <UserCard
-                key={favorite.id}
-                user={{
-                  id: favorite.app_users.id,
-                  name: favorite.app_users.name,
-                  email: favorite.app_users.email,
-                  company: { name: favorite.app_users.company_name }
-                }}
-              />
-            ))
-          ) : (
+          {favoritesLoading ? (
+            <p className="text-muted-foreground">Loading favorite users...</p>
+          ) : favoritesError || usersError ? (
+            <p role="alert" className="text-destructive">
+              {favoritesError || usersError}
+            </p>
+          ) : favorites.length === 0 ? (
             <p className="text-gray-500">Anda belum memiliki user favorit.</p>
+          ) : usersLoading ? (
+            <p className="text-muted-foreground">Loading favorite users...</p>
+          ) : favoriteUsers.length > 0 ? (
+            favoriteUsers.map((user) => <UserCard key={user.id} user={user} />)
+          ) : (
+            <p className="text-gray-500">Data pengguna favorit tidak tersedia.</p>
           )}
         </div>
       </div>

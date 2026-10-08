@@ -62,7 +62,8 @@ export default async function LoginPage({ searchParams }) {
                   id="password"
                   name="password"
                   type="password"
-                  placeholder="••••••••"
+                  autoComplete="current-password"
+                  placeholder="Enter your password"
                   required
                 />
               </div>

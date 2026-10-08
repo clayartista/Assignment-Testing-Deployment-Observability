@@ -1,4 +1,5 @@
 import { removeFavorite } from "@/lib/services/favoriteService";
+import { createClient } from "@/lib/supabase/server"
 
 export async function DELETE(_request, { params }) {
   const { id } = await params;

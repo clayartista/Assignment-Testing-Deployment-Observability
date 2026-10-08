@@ -1,6 +1,6 @@
 import { AuthProvider } from "@/context/AuthContext";
 import { FavoriteProvider } from "@/context/FavoriteContext";
-import { createClient } from "@/lib/supabase/server";
+import { createClient } from "@/lib/supabase/server"
 
 export default async function RootLayout({ children }) {
   const supabase = await createClient();
